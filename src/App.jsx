@@ -1,25 +1,32 @@
 import './App.css';
 import React from 'react';
+import { brokeNodes } from './magic';
 
 const URL = 'https://api.genderize.io';
 
 function NameField(props) {
   return (
     <input type="text" placeholder="Name..." onInput={ event => {
-      props.onInput(event.target.value);
-    }}></input>
+        props.onInput(event.target.value);
+      }}
+      onClick={ event => {
+        event.target.value = "";
+      }}
+    ></input>
   )
 }
 
 function SubmitButton(props) {
   return (
-    <input type="submit" onClick={ props.onClick }></input>
+    <input type="submit" onClick={ props.onClick } value="Magic"></input>
   )
 }
 
 function ResultLine(props) {
+  const smallClass = props.result ? '' : ' small';
+
   return (
-    <span className="floor__result">{ props.result }</span>
+    <span className={ 'floor__result ' + smallClass }>{ props.result  || "WHAT IS THAT POKEMON??" }</span>
   )
 }
 
@@ -39,15 +46,17 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-          <NameField onInput={ name => this.setState({ name })}/>
+          <NameField onInput={ async name => 
+              this.setState({ 
+                floor: (await getFloor(name))?.gender 
+              }) 
+          }/>
 
-          <SubmitButton onClick={ async () => { 
-            const floor = (await getFloor(this.state.name))?.gender;
-
-            this.setState({ floor });
+          <SubmitButton onClick={ () => { 
+            brokeNodes(document.querySelectorAll('.App > *'));
           }}/>
 
-        <ResultLine result={ this.state.floor || "" }/>
+          <ResultLine result={ this.state.floor }/>
       </div>
     );
   }
