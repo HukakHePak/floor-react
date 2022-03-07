@@ -48,12 +48,9 @@
 }
 
 .App {
-  margin: auto;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  width: 100%;
+  height: 100%;
 }
 
 .App input {
@@ -101,6 +98,15 @@
 
 .App [type="submit"] {
   cursor: pointer;
+}
+
+.App [name="floor"] {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .App .floor__line {

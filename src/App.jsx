@@ -4,13 +4,18 @@ import { brokeNodes } from './magic';
 
 const URL = 'https://api.genderize.io';
 
+async function getFloor(name) {
+  if(!name) return null;
+   
+  return fetch(`${URL}?name=${name}`).then(response => response.json());
+}
+
 function NameStream(props) {
   return (
     <input type="text" 
       placeholder={ props.placeholder } 
-      onInput={ event => props.onInput(event.target.value) }
+      onInput={ props.onInput }
       onClick={ event => event.target.value = "" }
-      onKeyDown={ props.onKeyDown }
     ></input>
   )
 }
@@ -19,7 +24,7 @@ function MagicButton(props) {
   return (
     <input type="submit" 
       onClick={ props.onClick } 
-      value={ props.value || "Magic" }>
+      value={ props.value ?? "Magic" }>
     </input>
   )
 }
@@ -34,56 +39,51 @@ function FloorLine(props) {
   )
 }
 
-async function getFloor(name) {
-  if(!name) return null;
-   
-  return fetch(`${URL}?name=${name}`).then(response => response.json());
-}
-
-function brokeFloor() {
-  brokeNodes(document.querySelectorAll('.App > *'));
-}
-
-class App extends React.Component {
+class FloorForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      name: props.name,
-      floor: props.floor
-     };
+    this.name = props.name;
+    this.defautFloor = props.defautFloor || '';
+
+    this.state = { floor: this.defautFloor };
+
+    this.handleInput = this.handleInput.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  async handleInput(event) {
+    const name =  event.target.value;
+
+    getFloor(name).then( response => 
+      this.setState({ 
+        name,
+        floor: response?.gender || this.defautFloor
+      })) 
+    .catch(console.error);
+  }
+
+  handleSubmit(event) {
+    brokeNodes(document.querySelectorAll(`[name="${ this.name }"] > *`));
+    event.preventDefault();
   }
 
   render() {
-    let floorContent = "WHO IS THAT POKEMON!?";
-
-    if(this.state.name?.length > 2) floorContent = this.state.floor;
-
     return (
-      <div className="App" >
-
-        <NameStream 
-          placeholder="Name..."
-
-          onKeyDown={ event => {
-            if(event.code === 'Enter') 
-              brokeFloor();
-          }} 
-
-          onInput={ async name => 
-            this.setState({ 
-              name: name,
-              floor: (await getFloor(name))?.gender 
-            })
-        }/>
-
-        <MagicButton 
-          onClick={ brokeFloor }
-        />
-
-        <FloorLine content={ floorContent }/>
-      </div>
+      <form name={ this.name } onSubmit={ this.handleSubmit }>
+        <NameStream placeholder="Name..."onInput={ this.handleInput } />
+        <MagicButton />
+        <FloorLine content={ this.state.floor } />
+      </form>
     );
   }
+}
+
+function App() {
+    return (
+      <div className="App" >
+        <FloorForm name="floor" defautFloor="WHO IS THAT POKEMON!?" />
+      </div>
+    );
 }
 
 export default App;
