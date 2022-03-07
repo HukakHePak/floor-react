@@ -10,6 +10,10 @@ async function getFloor(name) {
   return fetch(`${URL}?name=${name}`).then(response => response.json());
 }
 
+function StreamWarn(props) {
+  return <p className={ "warn " + props.className || '' }>{ props.value || '' }</p>
+}
+
 function NameStream(props) {
   return (
     <input type="text" 
@@ -45,7 +49,10 @@ class FloorForm extends React.Component {
     this.name = props.name;
     this.defautFloor = props.defautFloor || '';
 
-    this.state = { floor: this.defautFloor };
+    this.state = { 
+      floor: this.defautFloor,
+      name: "" 
+    };
 
     this.handleInput = this.handleInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -57,7 +64,7 @@ class FloorForm extends React.Component {
     getFloor(name).then( response => 
       this.setState({ 
         name,
-        floor: response?.gender || this.defautFloor
+        floor: response?.gender
       })) 
     .catch(console.error);
   }
@@ -68,11 +75,18 @@ class FloorForm extends React.Component {
   }
 
   render() {
+
+    const nameLength = this.state.name?.length;
+
     return (
       <form name={ this.name } onSubmit={ this.handleSubmit }>
+
+        { nameLength < 2 && <StreamWarn value="Write name"/>}
+
         <NameStream placeholder="Name..."onInput={ this.handleInput } />
         <MagicButton />
-        <FloorLine content={ this.state.floor } />
+
+        <FloorLine content={ nameLength < 2 ? this.defautFloor : this.state.floor } />
       </form>
     );
   }
