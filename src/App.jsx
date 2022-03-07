@@ -35,6 +35,8 @@ function FloorLine(props) {
 }
 
 async function getFloor(name) {
+  if(!name) return null;
+   
   return fetch(`${URL}?name=${name}`).then(response => response.json());
 }
 
@@ -52,6 +54,10 @@ class App extends React.Component {
   }
 
   render() {
+    let floorContent = "WHO IS THAT POKEMON!?";
+
+    if(this.state.name?.length > 2) floorContent = this.state.floor;
+
     return (
       <div className="App" >
 
@@ -65,6 +71,7 @@ class App extends React.Component {
 
           onInput={ async name => 
             this.setState({ 
+              name: name,
               floor: (await getFloor(name))?.gender 
             })
         }/>
@@ -73,7 +80,7 @@ class App extends React.Component {
           onClick={ brokeFloor }
         />
 
-        <FloorLine content={ this.state.floor || "WHO IS THAT POKEMON!?"}/>
+        <FloorLine content={ floorContent }/>
       </div>
     );
   }
