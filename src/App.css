@@ -103,7 +103,7 @@
   cursor: pointer;
 }
 
-.App .floor__result {
+.App .floor__line {
   position: absolute;
   font-size: 300px;
   padding-bottom: 50px;
@@ -114,7 +114,7 @@
   color: rgb(91, 62, 204);
 }
 
-.App .floor__result.small {
+.App .floor__line.small {
   font-size: 200px;
   line-height: 160px;
 }

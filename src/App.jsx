@@ -4,34 +4,42 @@ import { brokeNodes } from './magic';
 
 const URL = 'https://api.genderize.io';
 
-function NameField(props) {
+function NameStream(props) {
   return (
-    <input type="text" placeholder="Name..." onInput={ event => {
-        props.onInput(event.target.value);
-      }}
-      onClick={ event => {
-        event.target.value = "";
-      }}
+    <input type="text" 
+      placeholder={ props.placeholder } 
+      onInput={ event => props.onInput(event.target.value) }
+      onClick={ event => event.target.value = "" }
+      onKeyDown={ props.onKeyDown }
     ></input>
   )
 }
 
-function SubmitButton(props) {
+function MagicButton(props) {
   return (
-    <input type="submit" onClick={ props.onClick } value="Magic"></input>
+    <input type="submit" 
+      onClick={ props.onClick } 
+      value={ props.value || "Magic" }>
+    </input>
   )
 }
 
-function ResultLine(props) {
-  const smallClass = props.result ? '' : ' small';
+function FloorLine(props) {
+  const smaller = props.content?.length < 10 ? '' : ' small';
 
   return (
-    <span className={ 'floor__result ' + smallClass }>{ props.result  || "WHAT IS THAT POKEMON??" }</span>
+    <span className={ 'floor__line ' + smaller }>
+      { props.content }
+    </span>
   )
 }
 
 async function getFloor(name) {
   return fetch(`${URL}?name=${name}`).then(response => response.json());
+}
+
+function brokeFloor() {
+  brokeNodes(document.querySelectorAll('.App > *'));
 }
 
 class App extends React.Component {
@@ -45,22 +53,30 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="App">
-          <NameField onInput={ async name => 
-              this.setState({ 
-                floor: (await getFloor(name))?.gender 
-              }) 
-          }/>
+      <div className="App" >
 
-          <SubmitButton onClick={ () => { 
-            brokeNodes(document.querySelectorAll('.App > *'));
-          }}/>
+        <NameStream 
+          placeholder="Name..."
 
-          <ResultLine result={ this.state.floor }/>
+          onKeyDown={ event => {
+            if(event.code === 'Enter') 
+              brokeFloor();
+          }} 
+
+          onInput={ async name => 
+            this.setState({ 
+              floor: (await getFloor(name))?.gender 
+            })
+        }/>
+
+        <MagicButton 
+          onClick={ brokeFloor }
+        />
+
+        <FloorLine content={ this.state.floor || "WHO IS THAT POKEMON!?"}/>
       </div>
     );
   }
 }
 
 export default App;
-
